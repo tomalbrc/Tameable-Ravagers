@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "tameable_ravagers",
+  "version": "${version}",
+  "name": "Tameable Ravagers",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "tameravagers.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "de.tomalbrc.tameable_ravagers.TameableRavagers"
+    ]
+  },
+  "mixins": [
+    "tameable_ravagers.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "polymer-core": "*",
+    "polymer-networking": "*",
+    "polymer-virtual-entity": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
