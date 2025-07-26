@@ -5,15 +5,19 @@ import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +28,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +42,21 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     public TameRavager(EntityType<? extends Horse> entityType, Level level) {
         super(entityType, level);
         this.setTamed(true);
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.JUMP_STRENGTH, 0.7)
+                .add(Attributes.MAX_HEALTH, 50.0F)
+                .add(Attributes.MOVEMENT_SPEED, 0.25F)
+                .add(Attributes.STEP_HEIGHT, 1.0F)
+                .add(Attributes.SAFE_FALL_DISTANCE, 6.0F)
+                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.5F);
+    }
+
+    @Override
+    protected void randomizeAttributes(RandomSource randomSource) {
+
     }
 
     @Override
@@ -251,5 +271,25 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     @Override
     public boolean canUseSlot(EquipmentSlot equipmentSlot) {
         return false;
+    }
+
+    @Override
+    public void setBaby(boolean bl) {
+        super.setBaby(false);
+    }
+
+    @Override
+    public boolean isBaby() {
+        return false;
+    }
+
+    @Override
+    public boolean canFallInLove() {
+        return false;
+    }
+
+    @Override
+    protected @NotNull ResourceKey<LootTable> getDefaultLootTable() {
+        return EntityType.RAVAGER.getDefaultLootTable();
     }
 }
