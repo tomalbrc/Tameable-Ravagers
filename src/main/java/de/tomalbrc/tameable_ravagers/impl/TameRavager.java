@@ -3,8 +3,10 @@ package de.tomalbrc.tameable_ravagers.impl;
 import de.tomalbrc.tameable_ravagers.mixin.LivingEntityAccessor;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +18,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.horse.Horse;
@@ -32,7 +35,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 public class TameRavager extends Horse implements PolymerEntity, Leashable {
@@ -58,6 +63,18 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     protected void randomizeAttributes(RandomSource randomSource) {
 
     }
+
+
+    @Override
+    public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, PacketContext player, boolean initial) {
+        data.add(snapshot(Attributes.MAX_HEALTH));
+        data.add(snapshot(Attributes.MOVEMENT_SPEED));
+    }
+
+    private ClientboundUpdateAttributesPacket.AttributeSnapshot snapshot(Holder<Attribute> attribute) {
+        return new ClientboundUpdateAttributesPacket.AttributeSnapshot(attribute, this.getAttribute(attribute).getBaseValue(), this.getAttribute(attribute).getModifiers());
+    }
+
 
     @Override
     protected @NotNull Component getTypeName() {
