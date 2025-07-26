@@ -6,8 +6,6 @@
   "server": [
     "AreaEffectCoudAccessor",
     "EntityMixin",
-    "LivingEntityAccessor",
-    "LivingEntityMixin",
     "RavagerMixin"
   ],
   "injectors": {

@@ -1,6 +1,5 @@
 package de.tomalbrc.tameable_ravagers.impl;
 
-import de.tomalbrc.tameable_ravagers.mixin.LivingEntityAccessor;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -9,15 +8,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -27,11 +29,9 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Predicate;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class TameRavager extends Horse implements PolymerEntity, Leashable {
-    private static final Predicate<Entity> NO_TAME_RAVAGER = (entity) -> !(entity instanceof TameRavager);
     private int attackCooldown = -1;
 
     public TameRavager(EntityType<? extends Horse> entityType, Level level) {
@@ -39,14 +39,25 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
         this.setTamed(true);
     }
 
-    @Override
-    protected @NotNull Component getTypeName() {
-        return Component.literal("Tame Ravager");
+    public static AttributeSupplier.Builder createAttributes() {
+        return Animal.createAnimalAttributes()
+                .add(Attributes.JUMP_STRENGTH, 0.7)
+                .add(Attributes.MAX_HEALTH, 50.0F)
+                .add(Attributes.MOVEMENT_SPEED, 0.25F)
+                .add(Attributes.STEP_HEIGHT, 1.0F)
+                .add(Attributes.SAFE_FALL_DISTANCE, 6.0F)
+                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.5F)
+                .add(Attributes.CAMERA_DISTANCE, 3F);
     }
 
     @Override
-    public boolean isBodyArmorItem(ItemStack itemStack) {
-        return false;
+    protected void randomizeAttributes(RandomSource randomSource) {
+
+    }
+
+    @Override
+    protected @NotNull Component getTypeName() {
+        return Component.literal("Tame Ravager");
     }
 
     @Override
@@ -66,7 +77,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
     @Override
     protected @Nullable SoundEvent getEatingSound() {
-        return SoundEvents.GENERIC_EAT;
+        return SoundEvents.GENERIC_EAT.value();
     }
 
     @Override
@@ -114,7 +125,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayer serverPlayer) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         return EntityType.RAVAGER;
     }
 
@@ -124,13 +135,14 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
         if (attackCooldown != -1)
             return Vec3.ZERO;
 
-        float x = player.xxa;
-        float z = player.zza*2f;
+        ServerPlayer p = (ServerPlayer) player;
+        float x = p.getLastClientInput().left() ? 1 : p.getLastClientInput().right() ? -1 : 0;
+        float z = p.getLastClientInput().forward() ? 1 : p.getLastClientInput().backward() ? -1 : 0;
         if (z <= 0.0F) {
             z *= 0.5F;
         }
 
-        return new Vec3(x, 0.0, z).scale(this.getRiddenSpeed(player));
+        return new Vec3(x, 0.0, z).normalize().scale(this.getRiddenSpeed(player)*2.f);
     }
 
     @Override
@@ -147,13 +159,13 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
     @Override
     protected void tickRidden(Player player, Vec3 vec3) {
-        if (getOwnerUUID() == null)
+        if (getOwner() == null)
             tameWithName(player);
 
         this.setRot(player.getYRot(), player.getXRot() * 0.5F);
         this.yRotO = this.yBodyRot = this.yBodyRotO = this.yHeadRot = this.yHeadRotO = this.getYRot();
 
-        if (attackCooldown == -1 && player instanceof ServerPlayer serverPlayer && ((LivingEntityAccessor)serverPlayer).getJumping()) {
+        if (attackCooldown == -1 && player instanceof ServerPlayer serverPlayer && (serverPlayer.getLastClientInput().jump())) {
             attackCooldown += 30;
         } else if (attackCooldown > 15) {
             if (this.getPose() != Pose.ROARING)
@@ -172,7 +184,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
     private void roar() {
         if (this.isAlive()) {
-            for(LivingEntity livingEntity : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0F), NO_TAME_RAVAGER)) {
+            for (LivingEntity livingEntity : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0F), (entity) -> !(entity instanceof TameRavager) && getControllingPassenger() != entity)) {
                 if (!(livingEntity instanceof AbstractIllager)) {
                     livingEntity.hurt(this.damageSources().mobAttack(this), 6.0F);
                 }
@@ -230,12 +242,12 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
 
     @Override
-    public void customServerAiStep() {
-        super.customServerAiStep();
+    public void customServerAiStep(ServerLevel serverLevel) {
+        super.customServerAiStep(serverLevel);
 
         if (this.forcedAgeTimer > 0) {
             if (this.forcedAgeTimer % 4 == 0) {
-                ((ServerLevel)(this.level())).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1), this.getRandomY() + 0.5, this.getRandomZ(1), 0, 0.0, 0.0, 0.0, 0.0);
+                serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1), this.getRandomY() + 0.5, this.getRandomZ(1), 0, 0.0, 0.0, 0.0, 0.0);
             }
 
             --this.forcedAgeTimer;
@@ -243,13 +255,28 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor serverLevelAccessor, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor serverLevelAccessor, DifficultyInstance difficultyInstance, EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         this.setTamed(true);
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     @Override
     public boolean canUseSlot(EquipmentSlot equipmentSlot) {
+        return false;
+    }
+
+    @Override
+    public void setBaby(boolean bl) {
+        super.setBaby(false);
+    }
+
+    @Override
+    public boolean isBaby() {
+        return false;
+    }
+
+    @Override
+    public boolean canFallInLove() {
         return false;
     }
 }

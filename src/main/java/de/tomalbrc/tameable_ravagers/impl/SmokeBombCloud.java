@@ -4,14 +4,14 @@ import de.tomalbrc.tameable_ravagers.mixin.AreaEffectCoudAccessor;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import org.joml.Vector3f;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 
@@ -50,25 +50,25 @@ public class SmokeBombCloud extends AreaEffectCloud implements PolymerEntity {
             serverLevel.sendParticles (ParticleTypes.LARGE_SMOKE, position().x, position().y + getBbHeight()*2, position().z, 5, getBbWidth()/scale, getBbHeight()*2, getBbWidth()/scale, 0);
             serverLevel.sendParticles (ParticleTypes.SMOKE, position().x, position().y + getBbHeight()*2, position().z, 30, getBbWidth()/scale, getBbHeight()*2, getBbWidth()/scale, 0);
             serverLevel.sendParticles (ParticleTypes.WHITE_SMOKE, position().x, position().y + getBbHeight()*2, position().z, 30, getBbWidth()/scale, getBbHeight()*2, getBbWidth()/scale, 0);
-            serverLevel.sendParticles (new DustParticleOptions(new Vector3f(1), 8f), position().x, position().y + getBbHeight()*2, position().z, 50, getBbWidth()/scale, getBbHeight()*2, getBbWidth()/scale, 0);
+            serverLevel.sendParticles (new DustParticleOptions(0xFF_FF_FF, 8f), position().x, position().y + getBbHeight()*2, position().z, 50, getBbWidth()/scale, getBbHeight()*2, getBbWidth()/scale, 0);
         }
 
         age++;
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayer serverPlayer) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         return EntityType.AREA_EFFECT_CLOUD;
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+    protected void readAdditionalSaveData(ValueInput compoundTag) {
         super.readAdditionalSaveData(compoundTag);
-        if (compoundTag.contains("CustomAge")) this.age = compoundTag.getInt("CustomAge");
+        this.age = compoundTag.getIntOr("CustomAge", 0);
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+    protected void addAdditionalSaveData(ValueOutput compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putInt("CustomAge", this.age);
     }

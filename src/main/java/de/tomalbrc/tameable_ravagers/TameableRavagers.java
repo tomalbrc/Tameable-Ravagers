@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,14 +20,14 @@ import java.util.function.Function;
 public class TameableRavagers implements ModInitializer {
     public static String MODID = "tameable_ravagers";
 
-    public static EntityType<?> RAVAGER = register(ResourceLocation.fromNamespaceAndPath(MODID, "ravager"), FabricEntityType.Builder.createLiving(TameRavager::new, MobCategory.CREATURE, x -> x.defaultAttributes(Horse::createBaseHorseAttributes)).sized(1.95F, 2.2F).passengerAttachments(new Vec3(0, 2.2625,-0.0625F)).passengerAttachments(1.44375F).clientTrackingRange(10));
+    public static EntityType<?> RAVAGER = register(ResourceLocation.fromNamespaceAndPath(MODID, "ravager"), FabricEntityType.Builder.createLiving(TameRavager::new, MobCategory.CREATURE, x -> x.defaultAttributes(TameRavager::createAttributes)).sized(1.95F, 2.2F).passengerAttachments(new Vec3(0, 2.2625,-0.0625F)).passengerAttachments(1.44375F).clientTrackingRange(10));
 
     //public static EntityType<ThrownSmokeBomb> THROWN_POTION = register(ResourceLocation.fromNamespaceAndPath(MODID, "thrown_smoke_bomb"), EntityType.Builder.of(ThrownSmokeBomb::new, MobCategory.MISC));
     //public static EntityType<SmokeBombCloud> SMOKE_BOMB_CLOUD = register(ResourceLocation.fromNamespaceAndPath(MODID, "smoke_bomb_cloud"), EntityType.Builder.of(SmokeBombCloud::new, MobCategory.MISC));
     //public static Item SMOKE_BOMB = registerItem(ResourceLocation.fromNamespaceAndPath(MODID, "smoke_bomb"), SmokeBombItem::new, new Item.Properties());
 
-    private static <T extends Entity> EntityType<T> register(ResourceLocation string, EntityType.Builder<T> builder) {
-        var entityType = Registry.register(BuiltInRegistries.ENTITY_TYPE, string.toString(), builder.build(string.toString()));
+    private static <T extends Entity> EntityType<T> register(ResourceLocation resourceLocation, EntityType.Builder<T> builder) {
+        var entityType = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceLocation.toString(), builder.build(ResourceKey.create(Registries.ENTITY_TYPE, resourceLocation)));
         PolymerEntityUtils.registerType(entityType);
         return entityType;
     }
@@ -39,10 +38,8 @@ public class TameableRavagers implements ModInitializer {
     }
 
     public static <T extends Item> T registerItem(ResourceLocation identifier, Function<Item.Properties, T> function, Item.Properties properties) {
-        //T item = function.apply(properties.setId(identifier));
-        T item = function.apply(properties);
+        T item = function.apply(properties.setId(itemKey(identifier)));
         Registry.register(BuiltInRegistries.ITEM, itemKey(identifier), item);
-
         return item;
     }
 
