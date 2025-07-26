@@ -63,7 +63,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     private ClientboundUpdateAttributesPacket.AttributeSnapshot snapshot(Holder<Attribute> attribute) {
-        return new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.CAMERA_DISTANCE, this.getAttribute(Attributes.CAMERA_DISTANCE).getBaseValue(), this.getAttribute(Attributes.CAMERA_DISTANCE).getModifiers());
+        return new ClientboundUpdateAttributesPacket.AttributeSnapshot(attribute, this.getAttribute(attribute).getBaseValue(), this.getAttribute(attribute).getModifiers());
     }
 
     @Override
