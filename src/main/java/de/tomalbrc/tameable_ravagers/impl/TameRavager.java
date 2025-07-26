@@ -2,8 +2,10 @@ package de.tomalbrc.tameable_ravagers.impl;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -14,6 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -31,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.packettweaker.PacketContext;
 
+import java.util.List;
+
 public class TameRavager extends Horse implements PolymerEntity, Leashable {
     private int attackCooldown = -1;
 
@@ -47,7 +52,18 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
                 .add(Attributes.STEP_HEIGHT, 1.0F)
                 .add(Attributes.SAFE_FALL_DISTANCE, 6.0F)
                 .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.5F)
-                .add(Attributes.CAMERA_DISTANCE, 3F);
+                .add(Attributes.CAMERA_DISTANCE, 5F);
+    }
+
+    @Override
+    public void modifyRawEntityAttributeData(List<ClientboundUpdateAttributesPacket.AttributeSnapshot> data, ServerPlayer player, boolean initial) {
+        data.add(snapshot(Attributes.CAMERA_DISTANCE));
+        data.add(snapshot(Attributes.MAX_HEALTH));
+        data.add(snapshot(Attributes.MOVEMENT_SPEED));
+    }
+
+    private ClientboundUpdateAttributesPacket.AttributeSnapshot snapshot(Holder<Attribute> attribute) {
+        return new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.CAMERA_DISTANCE, this.getAttribute(Attributes.CAMERA_DISTANCE).getBaseValue(), this.getAttribute(Attributes.CAMERA_DISTANCE).getModifiers());
     }
 
     @Override
