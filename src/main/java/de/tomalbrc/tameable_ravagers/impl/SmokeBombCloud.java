@@ -2,6 +2,7 @@ package de.tomalbrc.tameable_ravagers.impl;
 
 import de.tomalbrc.tameable_ravagers.mixin.AreaEffectCoudAccessor;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +23,6 @@ public class SmokeBombCloud extends AreaEffectCloud implements PolymerEntity {
         super(entityType, level);
     }
 
-
     public SmokeBombCloud(Level level, double x, double y, double z) {
         super(level, x, y, z);
 
@@ -40,7 +40,7 @@ public class SmokeBombCloud extends AreaEffectCloud implements PolymerEntity {
 
         if (this.level() instanceof ServerLevel serverLevel) {
             if (age < 2) {
-                serverLevel.sendParticles (ParticleTypes.FLASH, position().x, position().y + getBbHeight()/2, position().z, 5, 1, 1, 1, 0);
+                serverLevel.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFF_FF_FF_FF), position().x, position().y + getBbHeight()/2, position().z, 5, 1, 1, 1, 0);
             }
 
             // lots of particles, slow down ravager
