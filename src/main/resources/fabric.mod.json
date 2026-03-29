@@ -19,10 +19,10 @@
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "fabric": "*",
+    "fabric-api": "*",
     "polymer-core": "*",
     "polymer-networking": "*",
     "polymer-virtual-entity": "*",
-    "minecraft": ">=1.21.9-"
+    "minecraft": ">=26.1"
   }
 }

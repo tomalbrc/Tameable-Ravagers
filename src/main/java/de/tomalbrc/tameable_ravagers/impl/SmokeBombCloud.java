@@ -2,6 +2,7 @@ package de.tomalbrc.tameable_ravagers.impl;
 
 import de.tomalbrc.tameable_ravagers.mixin.AreaEffectCoudAccessor;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -12,7 +13,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.Map;
 

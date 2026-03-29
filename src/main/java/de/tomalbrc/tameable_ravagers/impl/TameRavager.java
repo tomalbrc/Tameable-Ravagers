@@ -1,6 +1,7 @@
 package de.tomalbrc.tameable_ravagers.impl;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,8 +21,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.horse.Horse;
-import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -32,7 +33,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -244,7 +244,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand interactionHand) {
+    public @NotNull InteractionResult mobInteract(Player player, InteractionHand interactionHand) {
         if (player.isSecondaryUseActive() && !isVehicle()) {
             var item = player.getItemInHand(interactionHand);
             if (item.isEmpty()) {
