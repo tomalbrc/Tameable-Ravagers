@@ -10,12 +10,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
+// TODO: add at some point
 public class SmokeBombCloud extends AreaEffectCloud implements PolymerEntity {
     int age = 0;
 
@@ -58,17 +61,17 @@ public class SmokeBombCloud extends AreaEffectCloud implements PolymerEntity {
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return EntityType.AREA_EFFECT_CLOUD;
+        return EntityTypes.AREA_EFFECT_CLOUD;
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput compoundTag) {
+    protected void readAdditionalSaveData(@NonNull ValueInput compoundTag) {
         super.readAdditionalSaveData(compoundTag);
         this.age = compoundTag.getIntOr("CustomAge", 0);
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput compoundTag) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putInt("CustomAge", this.age);
     }

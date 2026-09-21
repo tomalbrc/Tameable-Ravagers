@@ -33,6 +33,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -67,7 +68,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    protected void randomizeAttributes(RandomSource randomSource) {
+    protected void randomizeAttributes(@NonNull RandomSource randomSource) {
 
     }
 
@@ -77,7 +78,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    protected void playGallopSound(SoundType soundType) {
+    protected void playGallopSound(@NonNull SoundType soundType) {
         super.playGallopSound(soundType);
     }
 
@@ -97,7 +98,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    protected @NotNull SoundEvent getHurtSound(DamageSource damageSource) {
+    protected @NotNull SoundEvent getHurtSound(@NonNull DamageSource damageSource) {
         return SoundEvents.RAVAGER_HURT;
     }
 
@@ -107,7 +108,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    protected void playStepSound(BlockPos blockPos, BlockState blockState) {
+    protected void playStepSound(@NonNull BlockPos blockPos, BlockState blockState) {
         if (!blockState.liquid()) {
             BlockState blockState2 = this.level().getBlockState(blockPos.above());
             SoundType soundType = blockState.getSoundType();
@@ -142,12 +143,12 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext context) {
-        return EntityType.RAVAGER;
+        return EntityTypes.RAVAGER;
     }
 
     @Override
     @NotNull
-    protected Vec3 getRiddenInput(Player player, Vec3 vec3) {
+    protected Vec3 getRiddenInput(@NonNull Player player, @NonNull Vec3 vec3) {
         if (attackCooldown != -1)
             return Vec3.ZERO;
 
@@ -174,7 +175,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    protected void tickRidden(Player player, Vec3 vec3) {
+    protected void tickRidden(@NonNull Player player, @NonNull Vec3 vec3) {
         if (getOwner() == null)
             tameWithName(player);
 
@@ -199,10 +200,10 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     private void roar() {
-        if (this.isAlive()) {
-            for (LivingEntity livingEntity : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0F), (entity) -> !(entity instanceof TameRavager) && getControllingPassenger() != entity)) {
+        if (this.isAlive() && level() instanceof ServerLevel serverLevel) {
+            for (LivingEntity livingEntity : serverLevel.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0F), (entity) -> !(entity instanceof TameRavager) && getControllingPassenger() != entity)) {
                 if (!(livingEntity instanceof AbstractIllager)) {
-                    livingEntity.hurt(this.damageSources().mobAttack(this), 6.0F);
+                    livingEntity.hurtServer(serverLevel, this.damageSources().mobAttack(this), 6.0F);
                 }
 
                 this.strongKnockback(livingEntity);
@@ -210,11 +211,11 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
             Vec3 vec3 = this.getBoundingBox().getCenter();
 
-            for(int i = 0; i < 40; ++i) {
+            for (int i = 0; i < 40; ++i) {
                 double d = this.random.nextGaussian() * 0.2;
                 double e = this.random.nextGaussian() * 0.2;
                 double f = this.random.nextGaussian() * 0.2;
-                ((ServerLevel)this.level()).sendParticles(ParticleTypes.POOF, vec3.x, vec3.y, vec3.z, 0, d, e, f, 1);
+                serverLevel.sendParticles(ParticleTypes.POOF, vec3.x, vec3.y, vec3.z, 0, d, e, f, 1);
             }
 
             this.gameEvent(GameEvent.ENTITY_ACTION);
@@ -244,7 +245,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    public @NotNull InteractionResult mobInteract(Player player, InteractionHand interactionHand) {
+    public @NotNull InteractionResult mobInteract(Player player, @NonNull InteractionHand interactionHand) {
         if (player.isSecondaryUseActive() && !isVehicle()) {
             var item = player.getItemInHand(interactionHand);
             if (item.isEmpty()) {
@@ -258,7 +259,7 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
 
 
     @Override
-    public void customServerAiStep(ServerLevel serverLevel) {
+    public void customServerAiStep(@NonNull ServerLevel serverLevel) {
         super.customServerAiStep(serverLevel);
 
         if (this.forcedAgeTimer > 0) {
@@ -271,23 +272,18 @@ public class TameRavager extends Horse implements PolymerEntity, Leashable {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor serverLevelAccessor, DifficultyInstance difficultyInstance, EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NonNull ServerLevelAccessor serverLevelAccessor, @NonNull DifficultyInstance difficultyInstance, @NonNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         this.setTamed(true);
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     @Override
-    public boolean canUseSlot(EquipmentSlot equipmentSlot) {
+    public boolean canUseSlot(@NonNull EquipmentSlot equipmentSlot) {
         return false;
     }
 
     @Override
-    public void setBaby(boolean bl) {
-        super.setBaby(false);
-    }
-
-    @Override
-    public boolean isBaby() {
+    protected boolean canBeABaby() {
         return false;
     }
 

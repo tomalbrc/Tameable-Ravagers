@@ -23,6 +23,6 @@
     "polymer-core": "*",
     "polymer-networking": "*",
     "polymer-virtual-entity": "*",
-    "minecraft": ">=26.1"
+    "minecraft": ">=26.3"
   }
 }
