@@ -50,6 +50,9 @@ public abstract class RavagerMixin extends Raider implements RavagerConfusion {
         var item = player.getItemInHand(interactionHand);
         if (item.is(Items.ENCHANTED_GOLDEN_APPLE) && tr$isWeak()) {
             TameRavager tameRavager = (TameRavager) TameableRavagers.RAVAGER.create((ServerLevel) level(), x -> {}, blockPosition(), EntitySpawnReason.CONVERSION, true, true);
+            if (tameRavager == null)
+                return InteractionResult.PASS;
+
             tameRavager.setPos(this.position());
             tameRavager.setLeashData(this.getLeashData());
             tameRavager.setXRot(this.getXRot());
