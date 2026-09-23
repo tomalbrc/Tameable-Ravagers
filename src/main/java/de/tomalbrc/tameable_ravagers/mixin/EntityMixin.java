@@ -17,7 +17,6 @@ public abstract class EntityMixin {
     @Shadow
     public abstract boolean hasControllingPassenger();
 
-    // Something about polymer seems to be buggy...
     @Inject(method = "interact", at = @At(value = "HEAD"), cancellable = true)
     private void tr$onInteract(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
         if (hand == InteractionHand.OFF_HAND && (Object)this instanceof TameRavager tameableRavager && tameableRavager.isLeashed()) {

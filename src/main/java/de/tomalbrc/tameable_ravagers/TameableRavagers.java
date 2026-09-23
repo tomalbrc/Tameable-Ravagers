@@ -1,6 +1,9 @@
 package de.tomalbrc.tameable_ravagers;
 
+import de.tomalbrc.tameable_ravagers.impl.SmokeBombCloud;
+import de.tomalbrc.tameable_ravagers.impl.SmokeBombItem;
 import de.tomalbrc.tameable_ravagers.impl.TameRavager;
+import de.tomalbrc.tameable_ravagers.impl.ThrownSmokeBomb;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
@@ -22,9 +25,9 @@ public class TameableRavagers implements ModInitializer {
 
     public static EntityType<?> RAVAGER = register(Identifier.fromNamespaceAndPath(MODID, "ravager"), FabricEntityType.Builder.createLiving(TameRavager::new, MobCategory.CREATURE, x -> x.defaultAttributes(TameRavager::createAttributes)).sized(1.95F, 2.2F).passengerAttachments(new Vec3(0, 2.2625,-0.0625F)).passengerAttachments(1.44375F).clientTrackingRange(10));
 
-    //public static EntityType<ThrownSmokeBomb> THROWN_POTION = register(ResourceLocation.fromNamespaceAndPath(MODID, "thrown_smoke_bomb"), EntityType.Builder.of(ThrownSmokeBomb::new, MobCategory.MISC));
-    //public static EntityType<SmokeBombCloud> SMOKE_BOMB_CLOUD = register(ResourceLocation.fromNamespaceAndPath(MODID, "smoke_bomb_cloud"), EntityType.Builder.of(SmokeBombCloud::new, MobCategory.MISC));
-    //public static Item SMOKE_BOMB = registerItem(ResourceLocation.fromNamespaceAndPath(MODID, "smoke_bomb"), SmokeBombItem::new, new Item.Properties());
+    public static EntityType<ThrownSmokeBomb> THROWN_POTION = register(Identifier.fromNamespaceAndPath(MODID, "thrown_smoke_bomb"), EntityType.Builder.of(ThrownSmokeBomb::new, MobCategory.MISC));
+    public static EntityType<SmokeBombCloud> SMOKE_BOMB_CLOUD = register(Identifier.fromNamespaceAndPath(MODID, "smoke_bomb_cloud"), EntityType.Builder.of(SmokeBombCloud::new, MobCategory.MISC));
+    public static Item SMOKE_BOMB = registerItem(Identifier.fromNamespaceAndPath(MODID, "smoke_bomb"), SmokeBombItem::new, new Item.Properties());
 
     private static <T extends Entity> EntityType<T> register(Identifier resourceLocation, EntityType.Builder<T> builder) {
         var entityType = Registry.register(BuiltInRegistries.ENTITY_TYPE, resourceLocation.toString(), builder.build(ResourceKey.create(Registries.ENTITY_TYPE, resourceLocation)));
